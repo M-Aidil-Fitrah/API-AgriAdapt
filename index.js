@@ -19,6 +19,11 @@ app.use(express.json());
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connected"))
+  .then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  })
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Routes
@@ -27,11 +32,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/tanaman", router);
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
 
 // Export the app for testing purposes
 export default app;
