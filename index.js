@@ -9,30 +9,34 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Middleware
+app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connection
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log("MongoDB connected"))
-  .then(() => {
-    app.listen(PORT, () => {
-        console.log(`Server is running on http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => console.error("MongoDB connection error:", err));
+const PORT = 3000;
+const clientOptions = {
+    serverApi: { version: "1", strict: true, deprecationErrors: true },
+};
 
-// Routes
-app.get("/", (req, res) => {
-  res.send("Welcome to the API!");
-});
+async function connectDB() {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI.toString(), clientOptions);
+
+        console.log("Successfully connect to the MongoDB");
+    } catch (error) {
+        console.error("MongoDB connection error:", error.message);
+        process.exit(1);
+    }
+}
+
+connectDB()
+    .then(() => {
+        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    })
+    .catch(console.dir);
 
 app.use("/api/tanaman", router);
 
-// Export the app for testing purposes
 export default app;
 
